@@ -78,3 +78,13 @@
 ## 数据来源
 
 本服务使用公开的天气API接口获取数据，确保数据的实时性和准确性。
+
+## 配置
+
+天气API需要配置OpenWeatherMap API密钥才能正常工作。请按照以下步骤设置：
+
+1. 在[OpenWeatherMap](https://openweathermap.org/)注册账号并获取API密钥
+2. 将`config.example.py`复制为`config.py`
+3. 在`config.py`中填入您的API密钥
+
+注意：`config.py`文件包含敏感信息，已添加到`.gitignore`中，不会上传到GitHub。

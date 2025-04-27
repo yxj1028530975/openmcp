@@ -1,10 +1,16 @@
 from typing import Any
 import httpx
 
-# 常量
-NWS_API_BASE = "https://api.openweathermap.org/data/2.5/weather"
-USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36"
-API_KEY = "0c1ad5389997bb1bdf3ae117d28870e7"
+# 从配置文件导入常量
+try:
+    from .config import NWS_API_BASE, USER_AGENT, API_KEY
+except ImportError:
+    # 如果config.py不存在，提示用户创建
+    raise ImportError(
+        "配置文件不存在！请根据config.example.py创建config.py文件，"
+        "并填入您的API密钥。详情请参阅README.md"
+    )
+
 # 温度单位转换，将开尔文转化为摄氏度
 def kelvin_to_celsius(kelvin: float) -> float:
     return kelvin - 273.15
@@ -36,7 +42,7 @@ async def get_weather_from_latitude_longitude(latitude: float, longitude: float)
     params = {
         "lat": latitude,
         "lon": longitude,
-        "appid": "{API KEY}"
+        "appid": API_KEY
     }
     async with httpx.AsyncClient() as client:
         try:

@@ -189,3 +189,6 @@ tmp/
 *.log
 # Ignore test data
 test-data/
+
+# 配置文件（包含API密钥）
+apps/weather/config.py
