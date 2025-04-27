@@ -1,0 +1,9 @@
+version: '3'
+
+services:
+  dailyhot-api:
+    image: imsyy/dailyhot-api:latest
+    container_name: dailyhot-api
+    restart: always
+    ports:
+      - "6688:6688"

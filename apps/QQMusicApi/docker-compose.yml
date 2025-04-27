@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  qqmusic-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: qqmusic-api
+    container_name: qqmusic-api
+    restart: always
+    ports:
+      - "8001:8001"
+    environment:
+      - TZ=Asia/Shanghai 
