@@ -34,4 +34,4 @@ ENV PYTHONPATH="/app:/app/apps"
 EXPOSE 8000
 
 # 设置容器启动命令
-CMD ["python", "/app/main.py"] 
+CMD ["python", "/app/apps/main.py"] 
