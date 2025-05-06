@@ -30,6 +30,7 @@ if [ "$OS" = "Darwin" ]; then
   cat > "$CONFIG_FILE" << EOF
 {
   "registry-mirrors": [
+    "https://mirror.ccs.tencentyun.com/",
     "https://registry.cn-hangzhou.aliyuncs.com",
     "https://mirror.baidubce.com",
     "https://docker.mirrors.ustc.edu.cn"
@@ -58,6 +59,7 @@ elif [ "$OS" = "Linux" ]; then
   cat > /etc/docker/daemon.json << EOF
 {
   "registry-mirrors": [
+    "https://mirror.ccs.tencentyun.com/",
     "https://registry.cn-hangzhou.aliyuncs.com",
     "https://mirror.baidubce.com",
     "https://docker.mirrors.ustc.edu.cn"
@@ -85,6 +87,7 @@ fi
 
 echo ""
 echo "配置完成！以下国内镜像源已配置："
+echo "- 腾讯云: https://mirror.ccs.tencentyun.com/"
 echo "- 阿里云: https://registry.cn-hangzhou.aliyuncs.com"
 echo "- 百度云: https://mirror.baidubce.com"
 echo "- 中科大: https://docker.mirrors.ustc.edu.cn"
