@@ -23,9 +23,18 @@ MCP配置文件位于 `~/.cursor/mcp.json`，基本结构如下：
 
 您可以在此配置多个MCP服务器，系统将自动加载并提供统一的访问入口。
 
-## 已集成服务
+## 项目结构
 
-### 1. 热榜数据服务 (dailyhot-sse)
+OpenMCP项目包含两个主要部分：
+
+1. **后端服务(apps目录)**：基于FastAPI的MCP服务实现，提供各类数据接口
+2. **前端界面(ui目录)**：基于Vue.js的用户界面，用于MCP配置展示和数据可视化
+
+### 后端服务
+
+已集成的服务模块包括：
+
+#### 1. 热榜数据服务 (dailyhot-sse)
 
 提供知乎、微博、B站等50多个平台的热榜数据。
 
@@ -35,7 +44,7 @@ MCP配置文件位于 `~/.cursor/mcp.json`，基本结构如下：
 - B站热榜：`/bilibili`
 - 新闻热榜(聚合)：`/news`
 
-#### 支持的平台分类
+##### 支持的平台分类
 
 | 分类 | 包含平台 |
 |------|----------|
@@ -49,12 +58,30 @@ MCP配置文件位于 `~/.cursor/mcp.json`，基本结构如下：
 
 详细支持的平台列表请参考 [热榜服务文档](apps/application/DailyHotApi/README.md)。
 
-### 2. 天气服务 (weather-sse)
+#### 2. 天气服务 (weather-sse)
 
 通过城市名称（中国城市使用拼音）或经纬度获取天气信息。
 
 - 基于城市名称获取天气：`/get_weather_cityname`
 - 基于经纬度获取天气：`/get_weather_latitude_longitude`
+
+### 前端界面
+
+前端项目提供直观的用户界面，方便查看MCP配置和使用各项服务。
+
+#### 主要功能
+
+- **首页**：项目概览、服务状态和最新动态
+- **MCP配置文档**：详细的配置说明和示例
+- **服务分类浏览**：按分类查看所有可用服务
+- **热榜数据展示**：可视化展示各平台热榜数据
+
+#### 技术栈
+
+- **Vue.js 3**：前端框架
+- **Tailwind CSS**：样式框架
+- **Vite**：构建工具
+- **Vue Router**：路由管理
 
 ## 系统架构
 
@@ -64,6 +91,7 @@ OpenMCP平台采用模块化架构设计：
 2. **MCP层**：Multi-Channel Protocol实现，提供统一调用接口
 3. **应用层**：各个独立的服务模块（热榜数据、天气等）
 4. **数据层**：依赖的外部数据源和服务
+5. **表现层**：Vue.js前端界面，展示配置和数据
 
 ![架构图](docs/architecture.png)
 
@@ -75,8 +103,11 @@ OpenMCP平台采用模块化架构设计：
 - **高性能**：基于异步FastAPI框架，提供高并发支持
 - **可扩展性**：易于添加新的数据源和服务
 - **完整文档**：提供详细的API文档和配置说明
+- **友好界面**：直观的用户界面，便于使用和管理
 
 ## 部署说明
+
+### 后端部署
 
 1. 安装依赖:
 
@@ -126,6 +157,35 @@ PYTHONPATH=$PYTHONPATH:.. python main.py
 }
 ```
 
+### 前端部署
+
+1. 安装依赖:
+
+```bash
+cd ui
+npm install
+```
+
+2. 开发模式运行:
+
+```bash
+npm run dev
+```
+
+3. 构建生产版本:
+
+```bash
+npm run build
+```
+
+4. 预览生产构建:
+
+```bash
+npm run preview
+```
+
+前端默认在 http://localhost:5173 上运行，可通过环境变量或配置文件修改后端API地址。
+
 ## API文档与调用
 
 启动服务后，可通过以下方式查看和调用API：
@@ -133,6 +193,7 @@ PYTHONPATH=$PYTHONPATH:.. python main.py
 - Swagger UI文档：http://localhost:8000/docs
 - ReDoc文档：http://localhost:8000/redoc
 - MCP配置文档：http://localhost:8000/api-registry
+- 前端界面：http://localhost:5173
 
 ### MCP调用示例
 
@@ -197,12 +258,23 @@ async function getWeiboHot() {
 
 ## 开发指南
 
+### 后端开发
+
 要为OpenMCP平台添加新的服务模块，请遵循以下步骤：
 
 1. 在`apps/application`目录中创建新的服务子目录
 2. 实现服务的FastAPI应用
 3. 在`common/api_list.py`中注册API并添加适当的标签
 4. 编写详细的README文档
+
+### 前端开发
+
+要为前端添加新功能或页面：
+
+1. 在`ui/src/views`目录添加新的视图组件
+2. 在`ui/src/router`中注册新路由
+3. 实现相应的组件和逻辑
+4. 更新导航菜单
 
 详细开发指南请参考[开发文档](docs/development.md)。
 
@@ -220,14 +292,29 @@ async function getWeiboHot() {
 
 不同平台的数据更新频率不同，大多数热榜数据每5-15分钟更新一次，确保数据的及时性。
 
+### 如何自定义前端接口地址？
+
+在前端项目根目录创建`.env.local`文件，设置`VITE_API_BASE_URL`环境变量：
+
+```
+VITE_API_BASE_URL=http://your-api-server:8000
+```
+
 ## 技术栈
 
+**后端:**
 - **FastAPI**: 高性能Web框架
 - **FastApiMCP**: 多通道协议实现
 - **Docker**: 容器化部署
 - **httpx**: 异步HTTP客户端
 - **Uvicorn**: ASGI服务器
 - **Pydantic**: 数据校验和序列化
+
+**前端:**
+- **Vue.js 3**: 前端框架
+- **Tailwind CSS**: 样式框架
+- **Vue Router**: 路由管理
+- **Vite**: 构建工具
 
 ## 贡献
 
