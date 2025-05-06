@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  # 后端API服务
+  backend:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.backend
+    container_name: openmcp-backend
+    restart: always
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    environment:
+      - DAILYHOT_API_URL=${DAILYHOT_API_URL:-http://dailyhot-api:6688}
+      - BACKEND_CORS_ORIGINS=${BACKEND_CORS_ORIGINS:-["http://localhost","http://localhost:80"]}
+      - TZ=${TIMEZONE:-Asia/Shanghai}
+    volumes:
+      - ../apps:/app/apps:ro
+    depends_on:
+      - dailyhot-api
+    networks:
+      - openmcp-network
+
+  # 前端UI服务
+  frontend:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.frontend
+    container_name: openmcp-frontend
+    restart: always
+    ports:
+      - "8070:80"
+    environment:
+      - API_BASE_URL=${API_BASE_URL:-http://localhost:8000}
+      - TZ=${TIMEZONE:-Asia/Shanghai}
+    depends_on:
+      - backend
+    networks:
+      - openmcp-network
+
+  # 热榜API服务
+  dailyhot-api:
+    image: imsyy/dailyhot-api:latest
+    container_name: openmcp-dailyhot-api
+    restart: always
+    ports:
+      - "${DAILYHOT_API_PORT:-6688}:6688"
+    environment:
+      - TZ=${TIMEZONE:-Asia/Shanghai}
+    networks:
+      - openmcp-network
+
+# 定义网络
+networks:
+  openmcp-network:
+    driver: bridge 
