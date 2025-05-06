@@ -2,8 +2,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from .utils import format_alert, get_weather_from_cityname, get_weather_from_latitude_longitude
 import uvicorn
-
-weather_app = FastAPI(title="天气信息API", description="通过城市名称（中国城市使用拼音）或经纬度获取天气信息")
+from common.server import server_app
 
 class CityName(BaseModel):
     cityname: str
@@ -24,7 +23,7 @@ class WeatherResponse(BaseModel):
     weather: Weather | None = None
     msg: str
 
-@weather_app.post("/get_weather/cityname", response_model=WeatherResponse, operation_id="get_weather_cityname")
+@server_app.post("/get_weather/cityname", response_model=WeatherResponse, operation_id="get_weather_cityname", tags=["天气预报"])
 async def get_weather_cityname(city: CityName):
     """
     通过城市名称（中国城市使用拼音）获取天气信息
@@ -46,7 +45,7 @@ async def get_weather_cityname(city: CityName):
     else:
         return {"code": -1, "msg": "Failed to fetch weather data"}
 
-@weather_app.post("/get_weather/latitude_longitude", response_model=WeatherResponse, operation_id="get_weather_latitude_longitude")
+@server_app.post("/get_weather/latitude_longitude", response_model=WeatherResponse, operation_id="get_weather_latitude_longitude", tags=["天气预报"])
 async def get_weather_latitude_longitude(citylatlon: CityLatLon):
     """
     通过经纬度获取天气信息
@@ -70,4 +69,4 @@ async def get_weather_latitude_longitude(citylatlon: CityLatLon):
         return {"code": -1, "msg": "Failed to fetch weather data"}
 
 if __name__ == "__main__":
-    uvicorn.run(weather_app, host='0.0.0.0', port=8000)
+    uvicorn.run(server_app, host='0.0.0.0', port=8000)

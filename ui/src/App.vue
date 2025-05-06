@@ -6,7 +6,7 @@
           <router-link to="/" class="text-2xl font-bold text-blue-600">OpenMCP API</router-link>
           <nav class="hidden md:flex space-x-6">
             <router-link to="/" class="text-gray-700 hover:text-blue-600">首页</router-link>
-            <a href="https://github.com/yourusername/openmcp" target="_blank" class="text-gray-700 hover:text-blue-600">GitHub</a>
+            <a href="https://github.com/yxj1028530975/openmcp" target="_blank" class="text-gray-700 hover:text-blue-600">GitHub</a>
           </nav>
         </div>
       </div>
@@ -28,8 +28,8 @@
           <div>
             <h4 class="text-lg font-semibold mb-2">链接</h4>
             <ul class="space-y-2">
-              <li><a href="https://github.com/yourusername/openmcp" class="text-gray-400 hover:text-white">GitHub</a></li>
-              <li><a href="https://github.com/yourusername/openmcp/issues" class="text-gray-400 hover:text-white">问题反馈</a></li>
+              <li><a href="https://github.com/yxj1028530975/openmcp" class="text-gray-400 hover:text-white">GitHub</a></li>
+              <li><a href="https://github.com/yxj1028530975/openmcp/issues" class="text-gray-400 hover:text-white">问题反馈</a></li>
             </ul>
           </div>
         </div>

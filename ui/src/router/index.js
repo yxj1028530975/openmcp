@@ -18,6 +18,11 @@ const router = createRouter({
       path: '/api/:apiName',
       name: 'api-detail',
       component: () => import('../views/ApiDetailView.vue')
+    },
+    {
+      path: '/api-registry',
+      name: 'api-registry',
+      component: () => import('../views/ApiRegistryView.vue')
     }
   ]
 })

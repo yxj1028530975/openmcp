@@ -1,19 +1,10 @@
-from fastapi import FastAPI, Query
 from pydantic import BaseModel
 from typing import List, Optional, Dict, Any, Union
 import httpx
 import asyncio
 import os
-import json
+from common.server import server_app
 
-# 可选导入chardet，用于自动检测编码
-try:
-    import chardet
-    HAS_CHARDET = True
-except ImportError:
-    HAS_CHARDET = False
-
-dailyhot_app = FastAPI(title="今日热榜API", description="一个聚合热门数据的API接口，包含知乎、微博、B站等多个平台的热榜数据")
 
 # 基本URL，优先使用环境变量配置
 BASE_URL = os.environ.get("DAILYHOT_API_URL", "http://localhost:6688")
@@ -52,20 +43,8 @@ async def fetch_data(url: str) -> Dict[str, Any]:
         except Exception as e:
             return {"code": -1, "message": f"获取数据失败: {str(e)}"}
 
-# @dailyhot_app.get("/routes", response_model=RoutesResponse, operation_id="get_routes")
-# async def get_routes():
-#     """
-#     获取所有可用的热榜接口列表
-    
-#     Returns:
-#         code: 状态码
-#         count: 接口数量
-#         routes: 接口列表
-#     """
-#     result = await fetch_data(f"{BASE_URL}/")
-#     return result
 
-@dailyhot_app.get("/hot/{platform}", response_model=HotListResponse, operation_id="get_hot_list")
+@server_app.get("/hot/{platform}", response_model=HotListResponse, operation_id="get_hot_list", tags=["热榜通用"])
 async def get_hot_list(platform: str):
     """
     获取指定平台的热榜数据
@@ -79,11 +58,12 @@ async def get_hot_list(platform: str):
         title: 热榜标题
         subtitle: 热榜副标题
         data: 热榜数据列表
+        
     """
     result = await fetch_data(f"{BASE_URL}/{platform}")
     return result
 
-@dailyhot_app.get("/zhihu", response_model=HotListResponse, operation_id="get_zhihu_hot")
+@server_app.get("/zhihu", response_model=HotListResponse, operation_id="get_zhihu_hot", tags=["社交媒体"])
 async def get_zhihu_hot():
     """
     获取知乎热榜
@@ -93,7 +73,7 @@ async def get_zhihu_hot():
     """
     return await get_hot_list("zhihu")
 
-@dailyhot_app.get("/weibo", response_model=HotListResponse, operation_id="get_weibo_hot")
+@server_app.get("/weibo", response_model=HotListResponse, operation_id="get_weibo_hot", tags=["社交媒体"])
 async def get_weibo_hot():
     """
     获取微博热搜
@@ -103,7 +83,7 @@ async def get_weibo_hot():
     """
     return await get_hot_list("weibo")
 
-@dailyhot_app.get("/bilibili", response_model=HotListResponse, operation_id="get_bilibili_hot")
+@server_app.get("/bilibili", response_model=HotListResponse, operation_id="get_bilibili_hot", tags=["视频平台"])
 async def get_bilibili_hot():
     """
     获取B站热榜
@@ -113,7 +93,7 @@ async def get_bilibili_hot():
     """
     return await get_hot_list("bilibili")
 
-@dailyhot_app.get("/news", response_model=HotListResponse, operation_id="get_news_hot")
+@server_app.get("/news", response_model=HotListResponse, operation_id="get_news_hot", tags=["新闻资讯"])
 async def get_news_hot():
     """
     获取新闻热榜 (聚合百度、网易等新闻源)
@@ -132,7 +112,7 @@ async def get_news_hot():
     
     return {"code": -1, "message": "获取新闻热榜失败"}
 
-@dailyhot_app.get("/acfun", response_model=HotListResponse, operation_id="get_acfun_hot")
+@server_app.get("/acfun", response_model=HotListResponse, operation_id="get_acfun_hot", tags=["视频平台"])
 async def get_acfun_hot():
     """
     获取AcFun排行榜
@@ -142,7 +122,7 @@ async def get_acfun_hot():
     """
     return await get_hot_list("acfun")
 
-@dailyhot_app.get("/zhihu-daily", response_model=HotListResponse, operation_id="get_zhihu_daily_hot")
+@server_app.get("/zhihu-daily", response_model=HotListResponse, operation_id="get_zhihu_daily_hot", tags=["社交媒体"])
 async def get_zhihu_daily_hot():
     """
     获取知乎日报推荐榜
@@ -152,7 +132,7 @@ async def get_zhihu_daily_hot():
     """
     return await get_hot_list("zhihu-daily")
 
-@dailyhot_app.get("/baidu", response_model=HotListResponse, operation_id="get_baidu_hot")
+@server_app.get("/baidu", response_model=HotListResponse, operation_id="get_baidu_hot", tags=["搜索引擎"])
 async def get_baidu_hot():
     """
     获取百度热搜榜
@@ -162,7 +142,7 @@ async def get_baidu_hot():
     """
     return await get_hot_list("baidu")
 
-@dailyhot_app.get("/douyin", response_model=HotListResponse, operation_id="get_douyin_hot")
+@server_app.get("/douyin", response_model=HotListResponse, operation_id="get_douyin_hot", tags=["视频平台"])
 async def get_douyin_hot():
     """
     获取抖音热点榜
@@ -172,7 +152,7 @@ async def get_douyin_hot():
     """
     return await get_hot_list("douyin")
 
-@dailyhot_app.get("/kuaishou", response_model=HotListResponse, operation_id="get_kuaishou_hot")
+@server_app.get("/kuaishou", response_model=HotListResponse, operation_id="get_kuaishou_hot", tags=["视频平台"])
 async def get_kuaishou_hot():
     """
     获取快手热点榜
@@ -182,7 +162,7 @@ async def get_kuaishou_hot():
     """
     return await get_hot_list("kuaishou")
 
-@dailyhot_app.get("/douban-movie", response_model=HotListResponse, operation_id="get_douban_movie_hot")
+@server_app.get("/douban-movie", response_model=HotListResponse, operation_id="get_douban_movie_hot", tags=["娱乐影视"])
 async def get_douban_movie_hot():
     """
     获取豆瓣电影新片榜
@@ -192,7 +172,7 @@ async def get_douban_movie_hot():
     """
     return await get_hot_list("douban-movie")
 
-@dailyhot_app.get("/douban-group", response_model=HotListResponse, operation_id="get_douban_group_hot")
+@server_app.get("/douban-group", response_model=HotListResponse, operation_id="get_douban_group_hot", tags=["社交媒体"])
 async def get_douban_group_hot():
     """
     获取豆瓣讨论小组讨论精选
@@ -202,7 +182,7 @@ async def get_douban_group_hot():
     """
     return await get_hot_list("douban-group")
 
-@dailyhot_app.get("/tieba", response_model=HotListResponse, operation_id="get_tieba_hot")
+@server_app.get("/tieba", response_model=HotListResponse, operation_id="get_tieba_hot", tags=["社交媒体"])
 async def get_tieba_hot():
     """
     获取百度贴吧热议榜
@@ -212,7 +192,7 @@ async def get_tieba_hot():
     """
     return await get_hot_list("tieba")
 
-@dailyhot_app.get("/sspai", response_model=HotListResponse, operation_id="get_sspai_hot")
+@server_app.get("/sspai", response_model=HotListResponse, operation_id="get_sspai_hot", tags=["科技数码"])
 async def get_sspai_hot():
     """
     获取少数派热榜
@@ -222,7 +202,7 @@ async def get_sspai_hot():
     """
     return await get_hot_list("sspai")
 
-@dailyhot_app.get("/ithome", response_model=HotListResponse, operation_id="get_ithome_hot")
+@server_app.get("/ithome", response_model=HotListResponse, operation_id="get_ithome_hot", tags=["科技数码"])
 async def get_ithome_hot():
     """
     获取IT之家热榜
@@ -232,7 +212,7 @@ async def get_ithome_hot():
     """
     return await get_hot_list("ithome")
 
-@dailyhot_app.get("/ithome-xijiayi", response_model=HotListResponse, operation_id="get_ithome_xijiayi_hot")
+@server_app.get("/ithome-xijiayi", response_model=HotListResponse, operation_id="get_ithome_xijiayi_hot", tags=["科技数码"])
 async def get_ithome_xijiayi_hot():
     """
     获取IT之家「喜加一」最新动态
@@ -242,7 +222,7 @@ async def get_ithome_xijiayi_hot():
     """
     return await get_hot_list("ithome-xijiayi")
 
-@dailyhot_app.get("/jianshu", response_model=HotListResponse, operation_id="get_jianshu_hot")
+@server_app.get("/jianshu", response_model=HotListResponse, operation_id="get_jianshu_hot", tags=["内容平台"])
 async def get_jianshu_hot():
     """
     获取简书热门推荐
@@ -252,7 +232,7 @@ async def get_jianshu_hot():
     """
     return await get_hot_list("jianshu")
 
-@dailyhot_app.get("/guokr", response_model=HotListResponse, operation_id="get_guokr_hot")
+@server_app.get("/guokr", response_model=HotListResponse, operation_id="get_guokr_hot", tags=["内容平台"])
 async def get_guokr_hot():
     """
     获取果壳热门文章
@@ -262,7 +242,7 @@ async def get_guokr_hot():
     """
     return await get_hot_list("guokr")
 
-@dailyhot_app.get("/thepaper", response_model=HotListResponse, operation_id="get_thepaper_hot")
+@server_app.get("/thepaper", response_model=HotListResponse, operation_id="get_thepaper_hot", tags=["新闻资讯"])
 async def get_thepaper_hot():
     """
     获取澎湃新闻热榜
@@ -272,7 +252,7 @@ async def get_thepaper_hot():
     """
     return await get_hot_list("thepaper")
 
-@dailyhot_app.get("/toutiao", response_model=HotListResponse, operation_id="get_toutiao_hot")
+@server_app.get("/toutiao", response_model=HotListResponse, operation_id="get_toutiao_hot", tags=["新闻资讯"])
 async def get_toutiao_hot():
     """
     获取今日头条热榜
@@ -282,7 +262,7 @@ async def get_toutiao_hot():
     """
     return await get_hot_list("toutiao")
 
-@dailyhot_app.get("/36kr", response_model=HotListResponse, operation_id="get_36kr_hot")
+@server_app.get("/36kr", response_model=HotListResponse, operation_id="get_36kr_hot", tags=["科技数码"])
 async def get_36kr_hot():
     """
     获取36氪热榜
@@ -292,7 +272,7 @@ async def get_36kr_hot():
     """
     return await get_hot_list("36kr")
 
-@dailyhot_app.get("/51cto", response_model=HotListResponse, operation_id="get_51cto_hot")
+@server_app.get("/51cto", response_model=HotListResponse, operation_id="get_51cto_hot", tags=["技术开发"])
 async def get_51cto_hot():
     """
     获取51CTO推荐榜
@@ -302,7 +282,7 @@ async def get_51cto_hot():
     """
     return await get_hot_list("51cto")
 
-@dailyhot_app.get("/csdn", response_model=HotListResponse, operation_id="get_csdn_hot")
+@server_app.get("/csdn", response_model=HotListResponse, operation_id="get_csdn_hot", tags=["技术开发"])
 async def get_csdn_hot():
     """
     获取CSDN排行榜
@@ -312,7 +292,7 @@ async def get_csdn_hot():
     """
     return await get_hot_list("csdn")
 
-@dailyhot_app.get("/nodeseek", response_model=HotListResponse, operation_id="get_nodeseek_hot")
+@server_app.get("/nodeseek", response_model=HotListResponse, operation_id="get_nodeseek_hot", tags=["技术开发"])
 async def get_nodeseek_hot():
     """
     获取NodeSeek最新动态
@@ -322,7 +302,7 @@ async def get_nodeseek_hot():
     """
     return await get_hot_list("nodeseek")
 
-@dailyhot_app.get("/juejin", response_model=HotListResponse, operation_id="get_juejin_hot")
+@server_app.get("/juejin", response_model=HotListResponse, operation_id="get_juejin_hot", tags=["技术开发"])
 async def get_juejin_hot():
     """
     获取稀土掘金热榜
@@ -332,7 +312,7 @@ async def get_juejin_hot():
     """
     return await get_hot_list("juejin")
 
-@dailyhot_app.get("/qq-news", response_model=HotListResponse, operation_id="get_qq_news_hot")
+@server_app.get("/qq-news", response_model=HotListResponse, operation_id="get_qq_news_hot", tags=["新闻资讯"])
 async def get_qq_news_hot():
     """
     获取腾讯新闻热点榜
@@ -342,7 +322,7 @@ async def get_qq_news_hot():
     """
     return await get_hot_list("qq-news")
 
-@dailyhot_app.get("/sina", response_model=HotListResponse, operation_id="get_sina_hot")
+@server_app.get("/sina", response_model=HotListResponse, operation_id="get_sina_hot", tags=["新闻资讯"])
 async def get_sina_hot():
     """
     获取新浪网热榜
@@ -352,7 +332,7 @@ async def get_sina_hot():
     """
     return await get_hot_list("sina")
 
-@dailyhot_app.get("/sina-news", response_model=HotListResponse, operation_id="get_sina_news_hot")
+@server_app.get("/sina-news", response_model=HotListResponse, operation_id="get_sina_news_hot", tags=["新闻资讯"])
 async def get_sina_news_hot():
     """
     获取新浪新闻热点榜
@@ -362,7 +342,7 @@ async def get_sina_news_hot():
     """
     return await get_hot_list("sina-news")
 
-@dailyhot_app.get("/netease-news", response_model=HotListResponse, operation_id="get_netease_news_hot")
+@server_app.get("/netease-news", response_model=HotListResponse, operation_id="get_netease_news_hot", tags=["新闻资讯"])
 async def get_netease_news_hot():
     """
     获取网易新闻热点榜
@@ -372,7 +352,7 @@ async def get_netease_news_hot():
     """
     return await get_hot_list("netease-news")
 
-@dailyhot_app.get("/52pojie", response_model=HotListResponse, operation_id="get_52pojie_hot")
+@server_app.get("/52pojie", response_model=HotListResponse, operation_id="get_52pojie_hot", tags=["技术开发"])
 async def get_52pojie_hot():
     """
     获取吾爱破解榜单
@@ -382,7 +362,7 @@ async def get_52pojie_hot():
     """
     return await get_hot_list("52pojie")
 
-@dailyhot_app.get("/hostloc", response_model=HotListResponse, operation_id="get_hostloc_hot")
+@server_app.get("/hostloc", response_model=HotListResponse, operation_id="get_hostloc_hot", tags=["技术开发"])
 async def get_hostloc_hot():
     """
     获取全球主机交流榜单
@@ -392,7 +372,7 @@ async def get_hostloc_hot():
     """
     return await get_hot_list("hostloc")
 
-@dailyhot_app.get("/huxiu", response_model=HotListResponse, operation_id="get_huxiu_hot")
+@server_app.get("/huxiu", response_model=HotListResponse, operation_id="get_huxiu_hot", tags=["科技数码"])
 async def get_huxiu_hot():
     """
     获取虎嗅24小时
@@ -402,7 +382,7 @@ async def get_huxiu_hot():
     """
     return await get_hot_list("huxiu")
 
-@dailyhot_app.get("/coolapk", response_model=HotListResponse, operation_id="get_coolapk_hot")
+@server_app.get("/coolapk", response_model=HotListResponse, operation_id="get_coolapk_hot", tags=["科技数码"])
 async def get_coolapk_hot():
     """
     获取酷安热榜
@@ -412,7 +392,7 @@ async def get_coolapk_hot():
     """
     return await get_hot_list("coolapk")
 
-@dailyhot_app.get("/hupu", response_model=HotListResponse, operation_id="get_hupu_hot")
+@server_app.get("/hupu", response_model=HotListResponse, operation_id="get_hupu_hot", tags=["社交媒体"])
 async def get_hupu_hot():
     """
     获取虎扑步行街热帖
@@ -422,7 +402,7 @@ async def get_hupu_hot():
     """
     return await get_hot_list("hupu")
 
-@dailyhot_app.get("/ifanr", response_model=HotListResponse, operation_id="get_ifanr_hot")
+@server_app.get("/ifanr", response_model=HotListResponse, operation_id="get_ifanr_hot", tags=["科技数码"])
 async def get_ifanr_hot():
     """
     获取爱范儿快讯
@@ -432,7 +412,7 @@ async def get_ifanr_hot():
     """
     return await get_hot_list("ifanr")
 
-@dailyhot_app.get("/lol", response_model=HotListResponse, operation_id="get_lol_hot")
+@server_app.get("/lol", response_model=HotListResponse, operation_id="get_lol_hot", tags=["游戏动漫"])
 async def get_lol_hot():
     """
     获取英雄联盟更新公告
@@ -442,7 +422,7 @@ async def get_lol_hot():
     """
     return await get_hot_list("lol")
 
-@dailyhot_app.get("/miyoushe", response_model=HotListResponse, operation_id="get_miyoushe_hot")
+@server_app.get("/miyoushe", response_model=HotListResponse, operation_id="get_miyoushe_hot", tags=["游戏动漫"])
 async def get_miyoushe_hot():
     """
     获取米游社最新消息
@@ -452,7 +432,7 @@ async def get_miyoushe_hot():
     """
     return await get_hot_list("miyoushe")
 
-@dailyhot_app.get("/genshin", response_model=HotListResponse, operation_id="get_genshin_hot")
+@server_app.get("/genshin", response_model=HotListResponse, operation_id="get_genshin_hot", tags=["游戏动漫"])
 async def get_genshin_hot():
     """
     获取原神最新消息
@@ -462,7 +442,7 @@ async def get_genshin_hot():
     """
     return await get_hot_list("genshin")
 
-@dailyhot_app.get("/honkai", response_model=HotListResponse, operation_id="get_honkai_hot")
+@server_app.get("/honkai", response_model=HotListResponse, operation_id="get_honkai_hot", tags=["游戏动漫"])
 async def get_honkai_hot():
     """
     获取崩坏3最新动态
@@ -472,7 +452,7 @@ async def get_honkai_hot():
     """
     return await get_hot_list("honkai")
 
-@dailyhot_app.get("/starrail", response_model=HotListResponse, operation_id="get_starrail_hot")
+@server_app.get("/starrail", response_model=HotListResponse, operation_id="get_starrail_hot", tags=["游戏动漫"])
 async def get_starrail_hot():
     """
     获取崩坏：星穹铁道最新动态
@@ -482,7 +462,7 @@ async def get_starrail_hot():
     """
     return await get_hot_list("starrail")
 
-@dailyhot_app.get("/weread", response_model=HotListResponse, operation_id="get_weread_hot")
+@server_app.get("/weread", response_model=HotListResponse, operation_id="get_weread_hot", tags=["内容平台"])
 async def get_weread_hot():
     """
     获取微信读书飙升榜
@@ -492,7 +472,7 @@ async def get_weread_hot():
     """
     return await get_hot_list("weread")
 
-@dailyhot_app.get("/ngabbs", response_model=HotListResponse, operation_id="get_ngabbs_hot")
+@server_app.get("/ngabbs", response_model=HotListResponse, operation_id="get_ngabbs_hot", tags=["游戏动漫"])
 async def get_ngabbs_hot():
     """
     获取NGA热帖
@@ -502,7 +482,7 @@ async def get_ngabbs_hot():
     """
     return await get_hot_list("ngabbs")
 
-@dailyhot_app.get("/v2ex", response_model=HotListResponse, operation_id="get_v2ex_hot")
+@server_app.get("/v2ex", response_model=HotListResponse, operation_id="get_v2ex_hot", tags=["技术开发"])
 async def get_v2ex_hot():
     """
     获取V2EX主题榜
@@ -512,7 +492,7 @@ async def get_v2ex_hot():
     """
     return await get_hot_list("v2ex")
 
-@dailyhot_app.get("/hellogithub", response_model=HotListResponse, operation_id="get_hellogithub_hot")
+@server_app.get("/hellogithub", response_model=HotListResponse, operation_id="get_hellogithub_hot", tags=["技术开发"])
 async def get_hellogithub_hot():
     """
     获取HelloGitHub Trending
@@ -522,7 +502,7 @@ async def get_hellogithub_hot():
     """
     return await get_hot_list("hellogithub")
 
-@dailyhot_app.get("/weatheralarm", response_model=HotListResponse, operation_id="get_weatheralarm_hot")
+@server_app.get("/weatheralarm", response_model=HotListResponse, operation_id="get_weatheralarm_hot", tags=["生活服务"])
 async def get_weatheralarm_hot():
     """
     获取中央气象台全国气象预警
@@ -532,7 +512,7 @@ async def get_weatheralarm_hot():
     """
     return await get_hot_list("weatheralarm")
 
-@dailyhot_app.get("/earthquake", response_model=HotListResponse, operation_id="get_earthquake_hot")
+@server_app.get("/earthquake", response_model=HotListResponse, operation_id="get_earthquake_hot", tags=["生活服务"])
 async def get_earthquake_hot():
     """
     获取中国地震台地震速报
@@ -542,7 +522,7 @@ async def get_earthquake_hot():
     """
     return await get_hot_list("earthquake")
 
-@dailyhot_app.get("/history", response_model=HotListResponse, operation_id="get_history_hot")
+@server_app.get("/history", response_model=HotListResponse, operation_id="get_history_hot", tags=["生活服务"])
 async def get_history_hot():
     """
     获取历史上的今天
@@ -554,4 +534,4 @@ async def get_history_hot():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(dailyhot_app, host="0.0.0.0", port=8002) 
+    uvicorn.run(server_app, host="0.0.0.0", port=8002) 
