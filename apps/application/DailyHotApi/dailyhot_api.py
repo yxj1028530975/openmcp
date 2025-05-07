@@ -60,7 +60,7 @@ async def get_hot_list(platform: str):
         data: 热榜数据列表
         
     """
-    result = await fetch_data(f"{BASE_URL}/{platform}")
+    result = await fetch_data(f"{BASE_URL}/{platform}?limit=10")
     return result
 
 @server_app.get("/zhihu", response_model=HotListResponse, operation_id="get_zhihu_hot", tags=["社交媒体"])
